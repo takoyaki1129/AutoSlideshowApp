@@ -34,6 +34,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         forward.setOnClickListener(this)
         pause.setOnClickListener(this)
 
+
         // Android 6.0以降の場合
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // パーミッションの許可状態を確認する
@@ -78,8 +79,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             imageView.setImageURI(imageUri)
         }
 
-        fun onClick(v: View) {
-            if (v.id == R.id.prev) {
+    }
+
+    override fun onClick(v: View) {
+        when(v.id) {
+             R.id.prev -> {
                 if(cursor.isLast()) {
                     cursor!!.moveToLast()
                 }
@@ -91,7 +95,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     imageView.setImageURI(imageUri)
                 }
 
-            if (v.id == R.id.play) {
+            R.id.play -> {
                 if (mTimer == null) {
                     mTimer = Timer()
                     mTimer!!.schedule(object : TimerTask() {
@@ -110,18 +114,19 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     }
                 }
 
-            if (v.id == R.id.pause) {
-                        if (mTimer != null){
-                            mTimer!!.cancel()
-                            mTimer = null
-                }
-                fun showHide() {
-                    play.visibility = View.VISIBLE// 表示にするメソッドが不明
-                    pause.visibility = View.INVISIBLE
+            R.id.pause -> {
+                if (mTimer != null) {
+                    mTimer!!.cancel()
+                    mTimer = null
+
+                    fun showHide() {
+                        play.visibility = View.VISIBLE// 表示にするメソッドが不明
+                        pause.visibility = View.INVISIBLE
+                    }
                 }
             }
 
-            if (v.id == R.id.forward) {
+            R.id.forward -> {
                 if(cursor.isLast()) {
                     cursor!!.moveToFirst()
                 }
