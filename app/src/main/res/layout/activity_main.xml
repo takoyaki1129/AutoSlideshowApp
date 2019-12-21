@@ -34,10 +34,17 @@
             android:id="@+id/prev"/>
 
         <Button
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="再生"
+        android:id="@+id/play"/>
+
+        <Button
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:text="再生"
-            android:id="@+id/play"/>
+            android:text="停止"
+            android:visibillity="gone"
+            android:id="@+id/pause"/>
 
         <Button
             android:layout_width="100dp"
@@ -46,8 +53,8 @@
             android:id="@+id/forward"/>
 
         <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:id="@+id/imageView" />
 

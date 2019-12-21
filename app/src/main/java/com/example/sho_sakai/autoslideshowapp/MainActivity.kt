@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         prev.setOnClickListener(this)
         play.setOnClickListener(this)
         forward.setOnClickListener(this)
+        pause.setOnClickListener(this)
 
         // Android 6.0以降の場合
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -78,10 +79,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
 
         fun onClick(v: View) {
-            // 次の画像を取得する
             if (v.id == R.id.prev) {
+                if(cursor.isLast()) {
+                    cursor!!.moveToLast()
+                }
                 cursor!!.moveToPrevious()
-                // indexからIDを取得し、そのIDから画像のURIを取得する
                     val fieldIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID)
                     val id = cursor.getLong(fieldIndex)
                     val imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
@@ -89,9 +91,41 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     imageView.setImageURI(imageUri)
                 }
 
+            if (v.id == R.id.play) {
+                if (mTimer == null) {
+                    mTimer = Timer()
+                    mTimer!!.schedule(object : TimerTask() {
+                        override fun run() {
+                            cursor!!.moveToNext()
+                            mHandler.post {
+                                timer.text = String.format("%.1f", mTimerSec)
+                            }
+                        }
+                    }, 2000, 2000) // 最初に始動させるまで 2000ミリ秒、ループの間隔を 2000ミリ秒 に設定
+
+                    fun showHide() {
+                        play.visibility = View.INVISIBLE// 非表示にするメソッドが不明
+                        pause.visibility = View.VISIBLE
+                        }
+                    }
+                }
+
+            if (v.id == R.id.pause) {
+                        if (mTimer != null){
+                            mTimer!!.cancel()
+                            mTimer = null
+                }
+                fun showHide() {
+                    play.visibility = View.VISIBLE// 表示にするメソッドが不明
+                    pause.visibility = View.INVISIBLE
+                }
+            }
+
             if (v.id == R.id.forward) {
+                if(cursor.isLast()) {
+                    cursor!!.moveToFirst()
+                }
                 cursor!!.moveToNext()
-                // indexからIDを取得し、そのIDから画像のURIを取得する
                 val fieldIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID)
                 val id = cursor.getLong(fieldIndex)
                 val imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
@@ -102,4 +136,5 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             cursor.close()
         }
     }
+
 
