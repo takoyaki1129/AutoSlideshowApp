@@ -13,7 +13,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import android.os.Handler
 import java.util.*
 
-class MainActivity : AppCompatActivity(), View.OnClickListener {
+class MainActivity: AppCompatActivity(), View.OnClickListener {
 
     private val PERMISSIONS_REQUEST_CODE = 100
 
