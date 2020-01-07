@@ -46,6 +46,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             } else {
                 // 許可されていないので許可ダイアログを表示する
                 requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), PERMISSIONS_REQUEST_CODE)
+
             }
             // Android 5系以下の場合
         } else {
@@ -85,77 +86,102 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
             imageView.setImageURI(imageUri)
         }
-
     }
 
+    //【追記】戻る、再生、進むボタンの実装
     override fun onClick(v: View) {
         when (v.id) {
             R.id.prev -> {
-                if (cursor!!.isFirst()) {
-                    cursor!!.moveToLast()
-                } else {
-                    cursor!!.moveToPrevious()
-                }
-                val fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
-                val id = cursor!!.getLong(fieldIndex)
-                val imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+                //【追記】許可されている場合
+                if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    if (cursor!!.isFirst()) {
+                        cursor!!.moveToLast()
+                    } else {
+                        cursor!!.moveToPrevious()
+                    }
 
-                imageView.setImageURI(imageUri)
+                    val fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
+                    val id = cursor!!.getLong(fieldIndex)
+                    val imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+
+                    imageView.setImageURI(imageUri)
+
+                }
+                //【追記】許可されていない場合
+                else {
+                    requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), PERMISSIONS_REQUEST_CODE)
+                    return
+                }
             }
 
             R.id.play -> {
-                if (mTimer == null) {
-                    mTimer = Timer()
-                    mTimer!!.schedule(object : TimerTask() {
-                        override fun run() {
-                            mHandler.post {
-                                if (cursor!!.isLast()) {
-                                    cursor!!.moveToFirst()
-                                } else {
-                                    cursor!!.moveToNext()
+                //【追記】許可されている場合
+                if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    if (mTimer == null) {
+                        mTimer = Timer()
+                        mTimer!!.schedule(object : TimerTask() {
+                            override fun run() {
+                                mHandler.post {
+                                    if (cursor!!.isLast()) {
+                                        cursor!!.moveToFirst()
+                                    } else {
+                                        cursor!!.moveToNext()
+                                    }
+                                    val fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
+                                    val id = cursor!!.getLong(fieldIndex)
+                                    val imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+
+                                    imageView.setImageURI(imageUri)
+
                                 }
-                                val fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
-                                val id = cursor!!.getLong(fieldIndex)
-                                val imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
-
-                                imageView.setImageURI(imageUri)
-
                             }
+                        }, 2000, 2000) // 最初に始動させるまで 2000ミリ秒、ループの間隔を 2000ミリ秒 に設定
+
+                        prev.isEnabled = false
+                        forward.isEnabled = false
+                        play.text = "停止"
+
+                    } else {
+                        if (mTimer != null) {
+                            mTimer!!.cancel()
+                            mTimer = null
                         }
-                    }, 2000, 2000) // 最初に始動させるまで 2000ミリ秒、ループの間隔を 2000ミリ秒 に設定
-
-                    prev.isEnabled = false
-                    forward.isEnabled = false
-                    play.text = "停止"
-
-
-                } else {
-                    if (mTimer != null) {
-                        mTimer!!.cancel()
-                        mTimer = null
+                        prev.isEnabled = true
+                        forward.isEnabled = true
+                        play.text = "再生"
                     }
-
-                    prev.isEnabled = true
-                    forward.isEnabled = true
-                    play.text = "再生"
+                }
+                //【追記】許可されていない場合
+                else {
+                    requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), PERMISSIONS_REQUEST_CODE)
+                    return
                 }
             }
 
-
             R.id.forward -> {
-                if (cursor!!.isLast()) {
-                    cursor!!.moveToFirst()
-                } else {
-                    cursor!!.moveToNext()
-                }
-                val fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
-                val id = cursor!!.getLong(fieldIndex)
-                val imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+                //【追記】許可されている場合
+                if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    if (cursor!!.isLast()) {
+                        cursor!!.moveToFirst()
+                    } else {
+                        cursor!!.moveToNext()
+                    }
 
-                imageView.setImageURI(imageUri)
+                    val fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
+                    val id = cursor!!.getLong(fieldIndex)
+                    val imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+
+                    imageView.setImageURI(imageUri)
+                }
+                //【追記】許可されていない場合
+                else {
+                    requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), PERMISSIONS_REQUEST_CODE)
+                    return
+                }
             }
         }
     }
+
 
     override fun onDestroy() {
         super.onDestroy()
